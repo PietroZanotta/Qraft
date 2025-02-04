@@ -17,4 +17,13 @@ Current Noisy Intermediate-Scale Quantum (NISQ) computers are useful in developi
     - benchmarking_empirical_cdf: computes and plots the empirical cdf of the errors
 - qraft
     - training.py: trains a Random Forest Regressor (sklearn) based on the circuits generated precedently
-    - inference.py: simple evaluation of the model used to assert that the training was successfull
+
+## Results:
+The result are summarized in the following plots:
+
+![](error_plots/dominant_states.png)
+![](error_plots/program.png)
+![](error_plots/states.png)
+![](ecdf_plots/dse_ecdf.png)
+![](ecdf_plots/medians_ecdf.png)
+![](ecdf_plots/program_error_ecdf.png)
