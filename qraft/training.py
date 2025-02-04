@@ -1,21 +1,23 @@
 import numpy as np
 import pandas as pd
+import joblib
 from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.metrics import mean_squared_error
 from skopt import BayesSearchCV
-import joblib
 
+# load the data
 data = pd.read_csv('data.csv')
 
-X = data.drop('true_prob', axis=1)
-X = X.drop('state_name', axis=1) 
-y = data['true_prob']
+# remove the y
+X = data.drop('true_probability', axis=1)
+X = X.drop('state_name', axis=1)
+y = data['true_probability']
 
-# Split the data into train and test data
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.10, random_state=1)
+# split in training and testing data (15% to testing)
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.15, random_state=42)
 
-# Define search space
+# parameters
 param_space = {
     'n_estimators': (10, 200),
     'max_depth': (1, 20),
@@ -24,31 +26,34 @@ param_space = {
     'max_features': (0.1, 1.0)
 }
 
-# Define the model
-rf_regressor = RandomForestRegressor(random_state=42)
+# defining the model
+rf = RandomForestRegressor(random_state=42)
 
-# Bayesian optimization with 50 steps
+# use bayesian optimization
 np.int = int
 opt = BayesSearchCV(
-    estimator=rf_regressor,
+    estimator=rf,
     search_spaces=param_space,
-    n_iter=50,
+    n_iter=50, 
     random_state=42,
-    cv=5,
-    scoring='neg_mean_squared_error',
+    cv=5,  
+    scoring='neg_mean_squared_error',  # scoring metric
     return_train_score=False
 )
 
 # print(X_train, y_train)
 
-# Fit the model
+# fitting
 opt.fit(X_train, y_train)
-joblib.dump(opt.best_estimator_, 'qraft.pkl')
 
-# Load the saved model
-best_model = joblib.load('qraft.pkl')
 
-# Accuracy of the best model
+# save the model and load it
+joblib.dump(opt.best_estimator_, 'qraft1.pkl')
+best_model = joblib.load('qraft1.pkl')
+
+# testing
 y_pred = best_model.predict(X_test)
+
+# computing mse
 mse = mean_squared_error(y_test, y_pred)
 print("Mean Squared Error:", mse)
